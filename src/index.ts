@@ -3,5 +3,4 @@ export * from './decorators/request.decorator';
 export * from './decorators/response.decorator';
 export * from './interfaces/nest-http-options.interface';
 export * from './nest-http.constants';
-export * from './nest-http.module'
-export * from 'axios';
+export * from './nest-http.module';
