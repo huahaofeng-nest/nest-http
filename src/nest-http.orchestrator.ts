@@ -1,6 +1,9 @@
 import { Inject, Injectable, Type } from '@nestjs/common';
 import { AxiosRequestConfig } from 'axios';
-import { NEST_HTTP_OPTIONS_PROVIDER, NEST_HTTP_RESPONSE_CONFIG } from './nest-http.constants';
+import {
+  NEST_HTTP_OPTIONS_PROVIDER,
+  NEST_HTTP_RESPONSE_CONFIG,
+} from './nest-http.constants';
 import { NestHttpOptions } from './interfaces/nest-http-options.interface';
 import { NestHttpClient } from './nest-http.client';
 import { RequestMetadata } from './interfaces/request-metadata.interface';
@@ -12,11 +15,11 @@ import { ModuleRef } from '@nestjs/core';
 import uriParams = require('uri-params');
 
 interface DecoratorRequest {
-  requestMetadata: RequestMetadata,
-  responseMetadata: ResponseMetadata,
-  paramsMetadata: ParamsMetadata,
-  interceptors: (Interceptor | Function)[],
-  target: Function
+  requestMetadata: RequestMetadata;
+  responseMetadata: ResponseMetadata;
+  paramsMetadata: ParamsMetadata;
+  interceptors: (Interceptor | Function)[];
+  target: Function;
 }
 
 @Injectable()
@@ -24,21 +27,38 @@ export class NestHttpOrchestrator {
   private readonly decoratorRequests = new Map<string, DecoratorRequest>();
 
   constructor(
-    @Inject(NEST_HTTP_OPTIONS_PROVIDER) private readonly options: NestHttpOptions,
+    @Inject(NEST_HTTP_OPTIONS_PROVIDER)
+    private readonly options: NestHttpOptions,
     private moduleRef: ModuleRef,
-  ) {
-  }
+  ) {}
 
-  public addRequest(target: Function, requestMetadata: RequestMetadata, responseMetadata: ResponseMetadata,
-                    paramsMetadata: ParamsMetadata, interceptors: (Interceptor | Function)[]) {
+  public addRequest(
+    target: Function,
+    requestMetadata: RequestMetadata,
+    responseMetadata: ResponseMetadata,
+    paramsMetadata: ParamsMetadata,
+    interceptors: (Interceptor | Function)[],
+  ) {
     const { property } = requestMetadata;
     const key = `${property}__${target.constructor.name}`;
-    this.decoratorRequests.set(key, { requestMetadata, responseMetadata, paramsMetadata, interceptors, target });
+    this.decoratorRequests.set(key, {
+      requestMetadata,
+      responseMetadata,
+      paramsMetadata,
+      interceptors,
+      target,
+    });
   }
 
   public async mountDecoratorRequests() {
     for (const item of this.decoratorRequests.values()) {
-      const { target, requestMetadata, responseMetadata, paramsMetadata, interceptors = [] } = item;
+      const {
+        target,
+        requestMetadata,
+        responseMetadata,
+        paramsMetadata,
+        interceptors = [],
+      } = item;
       const { path, method, options, property } = requestMetadata;
 
       const http = new NestHttpClient({
@@ -48,7 +68,9 @@ export class NestHttpOrchestrator {
       const resolvedInterceptors: Interceptor[] = [];
       for (const interceptor of interceptors) {
         if (interceptor instanceof Function) {
-          const interceptorInstance = await this.moduleRef.create(interceptor as Type<Interceptor>);
+          const interceptorInstance = await this.moduleRef.create(
+            interceptor as Type<Interceptor>,
+          );
           resolvedInterceptors.push(interceptorInstance);
         } else {
           resolvedInterceptors.push(interceptor);

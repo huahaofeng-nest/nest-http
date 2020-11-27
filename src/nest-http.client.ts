@@ -10,31 +10,54 @@ export class NestHttpClient {
     this.http = axios.create({ ...options });
   }
 
-  public async get(url: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse | any> {
+  public async get(
+    url: string,
+    config: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse | any> {
     return this.request({ method: 'get', url, ...config });
   }
 
-  public async delete(url: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse | any> {
+  public async delete(
+    url: string,
+    config: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse | any> {
     return this.request({ method: 'delete', url, ...config });
   }
 
-  public async head(url: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse | any> {
+  public async head(
+    url: string,
+    config: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse | any> {
     return this.request({ method: 'head', url, ...config });
   }
 
-  public async post(url: string, data?: any, config: AxiosRequestConfig = {}): Promise<AxiosResponse | any> {
+  public async post(
+    url: string,
+    data?: any,
+    config: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse | any> {
     return this.request({ method: 'post', url, data, ...config });
   }
 
-  public async put(url: string, data?: any, config: AxiosRequestConfig = {}): Promise<AxiosResponse | any> {
+  public async put(
+    url: string,
+    data?: any,
+    config: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse | any> {
     return this.request({ method: 'put', url, data, ...config });
   }
 
-  public async patch(url: string, data?: any, config: AxiosRequestConfig = {}): Promise<AxiosResponse | any> {
+  public async patch(
+    url: string,
+    data?: any,
+    config: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse | any> {
     return this.request({ method: 'patch', url, data, ...config });
   }
 
-  public async request(options: AxiosRequestConfig): Promise<AxiosResponse | any> {
+  public async request(
+    options: AxiosRequestConfig,
+  ): Promise<AxiosResponse | any> {
     return this.send(options);
   }
 
@@ -56,12 +79,20 @@ export class NestHttpClient {
     if (interceptors) {
       interceptors.forEach(interceptor => {
         this.http.interceptors.request.use(
-          interceptor.onRequest ? interceptor.onRequest.bind(interceptor) : undefined,
-          interceptor.onRequestError ? interceptor.onRequestError.bind(interceptor) : undefined,
+          interceptor.onRequest
+            ? interceptor.onRequest.bind(interceptor)
+            : undefined,
+          interceptor.onRequestError
+            ? interceptor.onRequestError.bind(interceptor)
+            : undefined,
         );
         this.http.interceptors.response.use(
-          interceptor.onResponse ? interceptor.onResponse.bind(interceptor) : undefined,
-          interceptor.onResponseError ? interceptor.onResponseError.bind(interceptor) : undefined,
+          interceptor.onResponse
+            ? interceptor.onResponse.bind(interceptor)
+            : undefined,
+          interceptor.onResponseError
+            ? interceptor.onResponseError.bind(interceptor)
+            : undefined,
         );
       });
     }

@@ -10,8 +10,7 @@ export class NestHttpExplorer implements OnModuleInit {
     private readonly discoveryService: DiscoveryService,
     private readonly metadataAccessor: NestHttpMetadataAccessor,
     private readonly orchestrator: NestHttpOrchestrator,
-  ) {
-  }
+  ) {}
 
   async onModuleInit() {
     this.explore();
@@ -37,10 +36,25 @@ export class NestHttpExplorer implements OnModuleInit {
     if (requests && requests.length > 0) {
       for (const requestMetadata of requests) {
         const { property } = requestMetadata;
-        const responseMetadata = this.metadataAccessor.getResponse(instance, property);
-        const paramsMetadata = this.metadataAccessor.getParams(instance, property);
-        const interceptors = this.metadataAccessor.getInterceptors(instance, property);
-        this.orchestrator.addRequest(instance, requestMetadata, responseMetadata, paramsMetadata, interceptors);
+        const responseMetadata = this.metadataAccessor.getResponse(
+          instance,
+          property,
+        );
+        const paramsMetadata = this.metadataAccessor.getParams(
+          instance,
+          property,
+        );
+        const interceptors = this.metadataAccessor.getInterceptors(
+          instance,
+          property,
+        );
+        this.orchestrator.addRequest(
+          instance,
+          requestMetadata,
+          responseMetadata,
+          paramsMetadata,
+          interceptors,
+        );
       }
     }
   }

@@ -13,7 +13,6 @@ import { Interceptor } from './interfaces/interceptor.interface';
 
 @Injectable()
 export class NestHttpMetadataAccessor {
-
   getRequests(target: Function): RequestMetadata[] | undefined {
     try {
       return Reflect.getMetadata(NEST_HTTP_REQUEST, target.constructor);
@@ -32,15 +31,26 @@ export class NestHttpMetadataAccessor {
 
   getParams(target: Function, key: any): ParamsMetadata | undefined {
     try {
-      return Reflect.getMetadata(NEST_HTTP_REQUEST_PARAMS, target.constructor, key);
+      return Reflect.getMetadata(
+        NEST_HTTP_REQUEST_PARAMS,
+        target.constructor,
+        key,
+      );
     } catch (e) {
       return;
     }
   }
 
-  getInterceptors(target: Function, key: any): (Interceptor | Function)[] | undefined {
+  getInterceptors(
+    target: Function,
+    key: any,
+  ): (Interceptor | Function)[] | undefined {
     try {
-      return Reflect.getMetadata(NEST_HTTP_INTERCEPTOR, target.constructor, key);
+      return Reflect.getMetadata(
+        NEST_HTTP_INTERCEPTOR,
+        target.constructor,
+        key,
+      );
     } catch (e) {
       return;
     }

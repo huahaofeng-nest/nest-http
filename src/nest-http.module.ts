@@ -1,6 +1,9 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { NestHttpOptions } from './interfaces/nest-http-options.interface';
-import { NEST_HTTP_CLIENT, NEST_HTTP_OPTIONS_PROVIDER } from './nest-http.constants';
+import {
+  NEST_HTTP_CLIENT,
+  NEST_HTTP_OPTIONS_PROVIDER,
+} from './nest-http.constants';
 import { NestHttpExplorer } from './nest-http.explorer';
 import { NestHttpClient } from './nest-http.client';
 import { DiscoveryModule } from '@nestjs/core';
@@ -26,7 +29,7 @@ export class NestHttpModule {
 
     const nestHttpClientProvider = {
       provide: NEST_HTTP_CLIENT,
-      useFactory: (nestHttpOptionsProvider) => {
+      useFactory: nestHttpOptionsProvider => {
         return new NestHttpClient(nestHttpOptionsProvider);
       },
       inject: [NEST_HTTP_OPTIONS_PROVIDER],
@@ -34,7 +37,13 @@ export class NestHttpModule {
 
     return {
       module: NestHttpModule,
-      providers: [nestHttpOptionsProvider, nestHttpClientProvider, NestHttpExplorer, NestHttpMetadataAccessor, NestHttpOrchestrator],
+      providers: [
+        nestHttpOptionsProvider,
+        nestHttpClientProvider,
+        NestHttpExplorer,
+        NestHttpMetadataAccessor,
+        NestHttpOrchestrator,
+      ],
       exports: [nestHttpClientProvider],
     };
   }
