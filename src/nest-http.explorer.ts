@@ -15,7 +15,7 @@ export class NestHttpExplorer implements OnModuleInit {
 
   async onModuleInit() {
     this.explore();
-    this.orchestrator.mountDecoratorRequests();
+    await this.orchestrator.mountDecoratorRequests();
   }
 
   explore() {
@@ -39,7 +39,8 @@ export class NestHttpExplorer implements OnModuleInit {
         const { property } = requestMetadata;
         const responseMetadata = this.metadataAccessor.getResponse(instance, property);
         const paramsMetadata = this.metadataAccessor.getParams(instance, property);
-        this.orchestrator.addRequest(instance, requestMetadata, responseMetadata, paramsMetadata);
+        const interceptors = this.metadataAccessor.getInterceptors(instance, property);
+        this.orchestrator.addRequest(instance, requestMetadata, responseMetadata, paramsMetadata, interceptors);
       }
     }
   }

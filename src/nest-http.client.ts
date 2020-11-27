@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { NestHttpOptions } from './interfaces/nest-http-options.interface';
 import { HttpException, ServiceUnavailableException } from '@nestjs/common';
+import { Interceptor } from './interfaces/interceptor.interface';
 
 export class NestHttpClient {
   private readonly http: AxiosInstance;
@@ -48,6 +49,21 @@ export class NestHttpClient {
         throw new HttpException(e.message, 400);
       }
       throw new ServiceUnavailableException(e.message);
+    }
+  }
+
+  public registerInterceptors(interceptors: Interceptor[]) {
+    if (interceptors) {
+      interceptors.forEach(interceptor => {
+        this.http.interceptors.request.use(
+          interceptor.onRequest ? interceptor.onRequest.bind(interceptor) : undefined,
+          interceptor.onRequestError ? interceptor.onRequestError.bind(interceptor) : undefined,
+        );
+        this.http.interceptors.response.use(
+          interceptor.onResponse ? interceptor.onResponse.bind(interceptor) : undefined,
+          interceptor.onResponseError ? interceptor.onResponseError.bind(interceptor) : undefined,
+        );
+      });
     }
   }
 }

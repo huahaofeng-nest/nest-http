@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Type } from '@nestjs/common';
 import { AxiosRequestConfig } from 'axios';
 import { NEST_HTTP_OPTIONS_PROVIDER, NEST_HTTP_RESPONSE_CONFIG } from './nest-http.constants';
 import { NestHttpOptions } from './interfaces/nest-http-options.interface';
@@ -7,12 +7,15 @@ import { RequestMetadata } from './interfaces/request-metadata.interface';
 import { ResponseMetadata } from './interfaces/response-metadata.interface';
 import { getRequestParams } from './utils/params.util';
 import { ParamsMetadata } from './interfaces/params-metadata.interface';
+import { Interceptor } from './interfaces/interceptor.interface';
+import { ModuleRef } from '@nestjs/core';
 import uriParams = require('uri-params');
 
 interface DecoratorRequest {
   requestMetadata: RequestMetadata,
   responseMetadata: ResponseMetadata,
   paramsMetadata: ParamsMetadata,
+  interceptors: (Interceptor | Function)[],
   target: Function
 }
 
@@ -22,23 +25,36 @@ export class NestHttpOrchestrator {
 
   constructor(
     @Inject(NEST_HTTP_OPTIONS_PROVIDER) private readonly options: NestHttpOptions,
+    private moduleRef: ModuleRef,
   ) {
   }
 
-  public addRequest(target: Function, requestMetadata: RequestMetadata, responseMetadata: ResponseMetadata, paramsMetadata: ParamsMetadata) {
+  public addRequest(target: Function, requestMetadata: RequestMetadata, responseMetadata: ResponseMetadata,
+                    paramsMetadata: ParamsMetadata, interceptors: (Interceptor | Function)[]) {
     const { property } = requestMetadata;
     const key = `${property}__${target.constructor.name}`;
-    this.decoratorRequests.set(key, { requestMetadata, responseMetadata, paramsMetadata, target });
+    this.decoratorRequests.set(key, { requestMetadata, responseMetadata, paramsMetadata, interceptors, target });
   }
 
-  mountDecoratorRequests() {
+  public async mountDecoratorRequests() {
     for (const item of this.decoratorRequests.values()) {
-      const { target, requestMetadata, responseMetadata, paramsMetadata } = item;
+      const { target, requestMetadata, responseMetadata, paramsMetadata, interceptors = [] } = item;
       const { path, method, options, property } = requestMetadata;
 
       const http = new NestHttpClient({
         ...this.options,
       });
+
+      const resolvedInterceptors: Interceptor[] = [];
+      for (const interceptor of interceptors) {
+        if (interceptor instanceof Function) {
+          const interceptorInstance = await this.moduleRef.create(interceptor as Type<Interceptor>);
+          resolvedInterceptors.push(interceptorInstance);
+        } else {
+          resolvedInterceptors.push(interceptor);
+        }
+      }
+      http.registerInterceptors(resolvedInterceptors);
 
       target[property] = async (...params: any[]) => {
         const requestParams = getRequestParams(paramsMetadata, params);
